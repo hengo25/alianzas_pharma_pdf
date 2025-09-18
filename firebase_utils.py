@@ -17,7 +17,7 @@ if not firebase_admin._apps:
 
     cred = credentials.Certificate(json.loads(firebase_key))
     firebase_admin.initialize_app(cred, {
-        'storageBucket': 'proyecto2app.appspot.com'  # <-- asegúrate que sea tu bucket exacto
+        'storageBucket': 'proyecto2app.firebasestorage.app'  # <-- asegúrate que sea tu bucket exacto
     })
 db = firestore.client()
 bucket = storage.bucket()
@@ -74,6 +74,7 @@ def eliminar_producto(id):
             except Exception:
                 pass
     db.collection("productos").document(id).delete()
+
 
 
 
