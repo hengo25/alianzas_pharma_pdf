@@ -12,11 +12,13 @@ if not firebase_admin._apps:
     if not firebase_key:
         raise RuntimeError("⚠️ No se encontró la variable de entorno FIREBASE_KEY en Render")
 
+    # Reemplaza los \n del private_key que se pierden al subir a Render
+    firebase_key = firebase_key.replace("\\n", "\n")
+
     cred = credentials.Certificate(json.loads(firebase_key))
     firebase_admin.initialize_app(cred, {
-        'storageBucket': 'proyecto2app.appspot.com'  # <-- cambia por tu bucket real
+        'storageBucket': 'proyecto2app.appspot.com'  # <-- asegúrate que sea tu bucket exacto
     })
-
 db = firestore.client()
 bucket = storage.bucket()
 
@@ -72,6 +74,7 @@ def eliminar_producto(id):
             except Exception:
                 pass
     db.collection("productos").document(id).delete()
+
 
 
 
