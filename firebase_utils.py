@@ -18,7 +18,7 @@ if not firebase_admin._apps:
     try:
         cred = credentials.Certificate(json.loads(firebase_key))
         firebase_admin.initialize_app(cred, {
-            'storageBucket': 'proyecto2app.appspot.com'  # ✅ Bucket correcto
+            'storageBucket': 'proyecto2app.firebasestorage.app'  # ✅ Bucket correctogs://proyecto2app.firebasestorage.app
         })
         print("✅ Firebase inicializado correctamente")
     except Exception as e:
@@ -95,6 +95,7 @@ def eliminar_producto(id):
         print(f"🗑️ Producto eliminado: {id}")
     except Exception as e:
         print("❌ Error al eliminar producto:", e)
+
 
 
 
