@@ -7,18 +7,15 @@ import uuid
 from datetime import timedelta
 from io import BytesIO
 
-# Cambia esto por tu bucket (sin gs://)
-BUCKET_NAME = "TU_BUCKET_AQUI"  # ejemplo: "proyecto2app-storage"
+
 
 # Inicializa Firebase (usa la variable de entorno en vez del archivo)
+# Inicializar Firebase solo una vez
 if not firebase_admin._apps:
-    firebase_key = os.environ.get("FIREBASE_KEY")
-    if not firebase_key:
-        raise Exception("FIREBASE_KEY no está configurada en Render")
-
+    firebase_key = os.getenv("FIREBASE_KEY")
     cred = credentials.Certificate(json.loads(firebase_key))
     firebase_admin.initialize_app(cred, {
-        "storageBucket": BUCKET_NAME
+        'storageBucket': 'proyecto2app.appspot.com'  # <-- reemplaza con tu bucket real
     })
 
 db = firestore.client()
@@ -90,6 +87,7 @@ def eliminar_producto(id):
             except Exception:
                 pass
     db.collection("productos").document(id).delete()
+
 
 
 
