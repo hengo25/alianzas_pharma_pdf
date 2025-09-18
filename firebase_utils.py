@@ -1,4 +1,5 @@
 # firebase_utils.py
+import os
 import firebase_admin
 from firebase_admin import credentials, firestore, storage
 import uuid
@@ -88,5 +89,6 @@ def eliminar_producto(id):
             except Exception:
                 pass
     db.collection("productos").document(id).delete()
+
 
 
