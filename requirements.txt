@@ -1,0 +1,6 @@
+flask
+firebase-admin
+google-cloud-storage
+reportlab
+requests
+gunicorn
