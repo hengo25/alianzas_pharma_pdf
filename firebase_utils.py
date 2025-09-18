@@ -10,7 +10,7 @@ BUCKET_NAME = "TU_BUCKET_AQUI"  # e.g. 'proyecto2app-storage' o 'proyecto2app.ap
 
 # Inicializa Firebase (usa tu archivo de credenciales)
 if not firebase_admin._apps:
-    cred = credentials.Certificate("firebase_key.json")
+    cred = credentials.Certificate("FIREBASE_KEY")
     firebase_admin.initialize_app(cred, {
         "storageBucket": BUCKET_NAME
     })
@@ -84,3 +84,4 @@ def eliminar_producto(id):
             except Exception:
                 pass
     db.collection("productos").document(id).delete()
+
