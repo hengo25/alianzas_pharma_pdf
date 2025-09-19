@@ -4,20 +4,23 @@ from firebase_admin import credentials, firestore, storage
 import uuid
 from datetime import timedelta
 
-# Inicializa Firebase solo una vez
+# Leer el contenido del JSON desde la variable de entorno
+firebase_key = os.environ.get("FIREBASE_KEY")
+
+if not firebase_key:
+    raise ValueError("No se encontró la variable de entorno FIREBASE_KEY")
+
+# Convertir la cadena JSON a diccionario
+firebase_key_dict = json.loads(firebase_key)
+
+# Inicializar Firebase si no está inicializado aún
 if not firebase_admin._apps:
-    firebase_key = os.getenv("FIREBASE_KEY")
-
-    if not firebase_key:
-        raise RuntimeError("⚠️ No se encontró la variable de entorno FIREBASE_KEY")
-
-    # Reemplazar los \\n por saltos de línea reales en la clave privada
-    firebase_key = firebase_key.replace("\\n", "\n")
-
-    cred = credentials.Certificate(json.loads(firebase_key))
+    cred = credentials.Certificate(firebase_key_dict)
     firebase_admin.initialize_app(cred, {
-        'storageBucket': 'royecto2app.appspot.com'
+        'storageBucket': 'proyecto2app.firebasestorage.app'
     })
+
+# Inicializar Firestore y Storage
 
 db = firestore.client()
 bucket = storage.bucket()
@@ -107,6 +110,7 @@ def eliminar_producto(id):
         import traceback
         print("❌ Error al eliminar producto:", e)
         traceback.print_exc()
+
 
 
 
