@@ -1,4 +1,3 @@
-# app.py
 from flask import Flask, render_template, request, redirect, url_for, send_file, flash
 from firebase_utils import obtener_productos, agregar_producto, actualizar_producto, eliminar_producto
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image, Table, TableStyle
@@ -65,6 +64,7 @@ def productos_agregar():
         return redirect(url_for("productos"))
 
     agregar_producto(nombre, precio, imagen)
+    flash("✅ Producto agregado con éxito.", "success")
     return redirect(url_for("productos"))
 
 
@@ -75,12 +75,14 @@ def productos_editar(id):
     imagen = request.files.get("imagen")
 
     actualizar_producto(id, nombre, precio, nueva_imagen=imagen)
+    flash("✏️ Producto actualizado.", "info")
     return redirect(url_for("productos"))
 
 
 @app.route("/productos/eliminar/<id>", methods=["POST"])
 def productos_eliminar(id):
     eliminar_producto(id)
+    flash("🗑️ Producto eliminado.", "danger")
     return redirect(url_for("productos"))
 
 
@@ -153,7 +155,4 @@ def productos_pdf():
 
 
 if __name__ == "__main__":
-    # ⚠️ En Render se usa gunicorn, esto solo aplica en local
     app.run(debug=True)
-
-
