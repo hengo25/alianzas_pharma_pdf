@@ -7,7 +7,7 @@ from datetime import timedelta
 # Inicializa Firebase solo una vez
 if not firebase_admin._apps:
     firebase_key = os.getenv("FIREBASE_KEY")
-
+    firebase_key = base64.b64decode(firebase_key_b64).decode("utf-8")
     if not firebase_key:
         raise RuntimeError("⚠️ No se encontró la variable de entorno FIREBASE_KEY en Render")
 
@@ -98,6 +98,7 @@ def eliminar_producto(id):
         print(f"🗑️ Producto eliminado: {id}")
     except Exception as e:
         print("❌ Error al eliminar producto:", e)
+
 
 
 
