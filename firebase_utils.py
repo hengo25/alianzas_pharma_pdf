@@ -6,20 +6,17 @@ from datetime import timedelta
 
 # Inicializa Firebase solo una vez
 if not firebase_admin._apps:
-    firebase_key_b64 = os.getenv("FIREBASE_KEY")
-    if not firebase_key_b64:
+    firebase_key = os.getenv("FIREBASE_KEY")
+    if not firebase_key:
         raise RuntimeError("⚠️ No se encontró la variable de entorno FIREBASE_KEY en Render")
 
-    # Decodificar el JSON de la variable de entorno
-    firebase_key = base64.b64decode(firebase_key_b64).decode("utf-8")
-
-    # Reemplazar los \n que se pierden al guardar en Render
+    # Reemplaza los \n del private_key
     firebase_key = firebase_key.replace("\\n", "\n")
 
     try:
         cred = credentials.Certificate(json.loads(firebase_key))
         firebase_admin.initialize_app(cred, {
-            "storageBucket": "proyecto2app.appspot.com"  # ✅ Bucket correcto
+            "storageBucket": "proyecto2app.appspot.com"
         })
         print("✅ Firebase inicializado correctamente")
     except Exception as e:
@@ -105,3 +102,4 @@ def eliminar_producto(id):
         print(f"🗑️ Producto eliminado: {id}")
     except Exception as e:
         print("❌ Error al eliminar producto:", e)
+
