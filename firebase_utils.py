@@ -1,50 +1,22 @@
 # firebase_utils.py
 import os
 import json
-import base64
 import uuid
 from datetime import timedelta
 
 import firebase_admin
 from firebase_admin import credentials, firestore, storage
 
-def _load_service_account():
-    """
-    Intenta parsear FIREBASE_KEY desde:
-     - variable de entorno (JSON en 1 línea con \\n en private_key)
-     - o archivo local firebase-key.json (útil para pruebas locales)
-     - o base64 (por si lo guardaste así)
-    """
-    v = os.getenv("FIREBASE_KEY")
-    if v:
-        # intento normal
-        try:
-            return json.loads(v)
-        except Exception:
-            # si el valor tiene saltos reales, los convertimos a \\n
-            try:
-                return json.loads(v.replace("\n", "\\n"))
-            except Exception:
-                # intento base64
-                try:
-                    decoded = base64.b64decode(v).decode("utf-8")
-                    return json.loads(decoded)
-                except Exception as e:
-                    raise RuntimeError(
-                        "No pude parsear FIREBASE_KEY. Debe ser el JSON del service account "
-                        "(una línea, private_key con \\n). Error: " + str(e)
-                    )
+# ✅ Leer JSON desde variable de entorno
+firebase_key = os.environ.get("FIREBASE_KEY")
+if not firebase_key:
+    raise RuntimeError("⚠️ No se encontró la variable de entorno FIREBASE_KEY")
 
-    # fallback local para desarrollo
-    if os.path.exists("firebase-key.json"):
-        with open("firebase-key.json", "r", encoding="utf-8") as f:
-            return json.load(f)
+# ⚠️ Arreglar las barras invertidas en la clave privada (\n)
+firebase_key = firebase_key.replace('\\n', '\n')
 
-    raise RuntimeError("No se encontró la variable de entorno FIREBASE_KEY ni el archivo firebase-key.json")
-
-# cargar credenciales
-service_account_info = _load_service_account()
-cred = credentials.Certificate(service_account_info)
+# Convertir el string a dict
+service_account_info = json.loads(firebase_key)
 
 # obtener bucket desde env y limpiar gs:// si existe
 bucket_name = os.getenv("FIREBASE_BUCKET", "").strip()
@@ -61,8 +33,10 @@ if not bucket_name:
     raise RuntimeError("No se encontró FIREBASE_BUCKET y no pude inferirla. Añade FIREBASE_BUCKET en Render.")
 
 # inicializar firebase (esto debe hacerse **antes** de llamar a firestore.client())
-firebase_admin.initialize_app(cred, {"storageBucket": bucket_name})
-print("✅ Firebase inicializado. Bucket:", bucket_name)
+if not firebase_admin._apps:
+    cred = credentials.Certificate(service_account_info)
+    firebase_admin.initialize_app(cred, {"storageBucket": bucket_name})
+    print("✅ Firebase inicializado. Bucket:", bucket_name)
 
 db = firestore.client()
 bucket = storage.bucket()
@@ -74,7 +48,6 @@ def obtener_productos():
         productos = []
         for d in docs:
             obj = d.to_dict()
-            # asegurar id en el dict
             obj["id"] = d.id
             productos.append(obj)
         print(f"📦 Productos obtenidos: {len(productos)}")
@@ -84,20 +57,13 @@ def obtener_productos():
         return []
 
 def _upload_file_and_get_url(file_obj, filename_prefix="productos/"):
-    """
-    file_obj: objeto FileStorage de Flask (o similar) con .filename y .stream
-    """
     nombre_archivo = f"{filename_prefix}{uuid.uuid4().hex}_{file_obj.filename}"
     blob = bucket.blob(nombre_archivo)
-
-    # subir desde stream (compatible con Flask FileStorage)
     try:
         blob.upload_from_file(file_obj.stream, content_type=getattr(file_obj, "content_type", None))
-    except Exception as e:
-        # último recurso, intentar subir desde file_obj directamente
+    except Exception:
         blob.upload_from_file(file_obj, content_type=getattr(file_obj, "content_type", None))
 
-    # obtener URL firmada (v4 si está disponible)
     try:
         url = blob.generate_signed_url(expiration=timedelta(days=365), version="v4")
     except TypeError:
@@ -149,6 +115,7 @@ def eliminar_producto(id):
         print(f"🗑️ Producto eliminado: {id}")
     except Exception as e:
         print("❌ Error al eliminar producto:", e)
+
 
 
 
