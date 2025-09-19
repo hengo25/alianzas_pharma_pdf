@@ -5,17 +5,13 @@ import uuid
 from datetime import timedelta
 
 # Inicializa Firebase solo una vez
-if not firebase_admin._apps:
-    firebase_key = os.getenv("FIREBASE_KEY.json")
-    if not firebase_key:
-        raise RuntimeError("⚠️ No se encontró la variable de entorno FIREBASE_KEY en Render")
+# 🔑 Tu archivo de clave de servicio
+cred = credentials.Certificate("FIREBASE_KEY.json")
 
-    # Convertir el string a diccionario JSON
- 
-    firebase_admin.initialize_app(cred, {
-        'storageBucket': 'proyecto2app'
-    })
-    print("✅ Firebase inicializado correctamente")
+# 👇 Usa el nombre exacto del bucket que ves en la consola
+firebase_admin.initialize_app(cred, {
+    'storageBucket': 'proyecto2app'
+})
 
 db = firestore.client()
 bucket = storage.bucket()
@@ -105,6 +101,7 @@ def eliminar_producto(id):
         import traceback
         print("❌ Error al eliminar producto:", e)
         traceback.print_exc()
+
 
 
 
