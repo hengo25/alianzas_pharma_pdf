@@ -40,11 +40,15 @@ def obtener_productos():
 def _upload_file_and_get_url(file_obj, filename_prefix="productos/"):
     nombre_archivo = f"{filename_prefix}{uuid.uuid4().hex}_{file_obj.filename}"
     blob = bucket.blob(nombre_archivo)
-    blob.upload_from_file(file_obj, content_type=file_obj.content_type)
+
+    # Subir desde el stream del archivo
+    blob.upload_from_file(file_obj.stream, content_type=file_obj.content_type)
+
     try:
         url = blob.generate_signed_url(expiration=timedelta(days=365), version="v4")
     except TypeError:
         url = blob.generate_signed_url(expiration=timedelta(days=365))
+    
     print(f"📤 Imagen subida a: {nombre_archivo}")
     return url, nombre_archivo
 
@@ -95,6 +99,7 @@ def eliminar_producto(id):
         print(f"🗑️ Producto eliminado: {id}")
     except Exception as e:
         print("❌ Error al eliminar producto:", e)
+
 
 
 
