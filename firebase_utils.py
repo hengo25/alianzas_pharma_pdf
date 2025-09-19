@@ -16,7 +16,7 @@ if not firebase_admin._apps:
 
     cred = credentials.Certificate(json.loads(firebase_key))
     firebase_admin.initialize_app(cred, {
-        'storageBucket': 'proyecto2app.firebasestorage.app'
+        'storageBucket': 'royecto2app.appspot.com'
     })
 
 db = firestore.client()
@@ -107,6 +107,7 @@ def eliminar_producto(id):
         import traceback
         print("❌ Error al eliminar producto:", e)
         traceback.print_exc()
+
 
 
 
