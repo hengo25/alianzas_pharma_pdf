@@ -6,18 +6,20 @@ from datetime import timedelta
 
 # Inicializa Firebase solo una vez
 if not firebase_admin._apps:
-    firebase_key = os.getenv("FIREBASE_KEY")
-    firebase_key = base64.b64decode(firebase_key_b64).decode("utf-8")
-    if not firebase_key:
+    firebase_key_b64 = os.getenv("FIREBASE_KEY")
+    if not firebase_key_b64:
         raise RuntimeError("⚠️ No se encontró la variable de entorno FIREBASE_KEY en Render")
 
-    # Reemplaza los \n del private_key que se pierden al subir a Render
+    # Decodificar el JSON de la variable de entorno
+    firebase_key = base64.b64decode(firebase_key_b64).decode("utf-8")
+
+    # Reemplazar los \n que se pierden al guardar en Render
     firebase_key = firebase_key.replace("\\n", "\n")
 
     try:
         cred = credentials.Certificate(json.loads(firebase_key))
         firebase_admin.initialize_app(cred, {
-            'storageBucket': 'proyecto2app.firebasestorage.app'  # ✅ Bucket correctogs://proyecto2app.firebasestorage.app
+            "storageBucket": "proyecto2app.appspot.com"  # ✅ Bucket correcto
         })
         print("✅ Firebase inicializado correctamente")
     except Exception as e:
@@ -25,6 +27,7 @@ if not firebase_admin._apps:
 
 db = firestore.client()
 bucket = storage.bucket()
+
 
 def obtener_productos():
     try:
@@ -35,6 +38,7 @@ def obtener_productos():
     except Exception as e:
         print("❌ Error al obtener productos:", e)
         return []
+
 
 def _upload_file_and_get_url(file_obj, filename_prefix="productos/"):
     nombre_archivo = f"{filename_prefix}{uuid.uuid4().hex}_{file_obj.filename}"
@@ -47,9 +51,10 @@ def _upload_file_and_get_url(file_obj, filename_prefix="productos/"):
         url = blob.generate_signed_url(expiration=timedelta(days=365), version="v4")
     except TypeError:
         url = blob.generate_signed_url(expiration=timedelta(days=365))
-    
+
     print(f"📤 Imagen subida a: {nombre_archivo}")
     return url, nombre_archivo
+
 
 def agregar_producto(nombre, precio, imagen_file):
     try:
@@ -68,6 +73,7 @@ def agregar_producto(nombre, precio, imagen_file):
         print("❌ Error al agregar producto:", e)
         return None
 
+
 def actualizar_producto(id, nombre, precio, nueva_imagen=None):
     try:
         update_data = {
@@ -82,6 +88,7 @@ def actualizar_producto(id, nombre, precio, nueva_imagen=None):
         print(f"✏️ Producto actualizado: {id}")
     except Exception as e:
         print("❌ Error al actualizar producto:", e)
+
 
 def eliminar_producto(id):
     try:
@@ -98,13 +105,3 @@ def eliminar_producto(id):
         print(f"🗑️ Producto eliminado: {id}")
     except Exception as e:
         print("❌ Error al eliminar producto:", e)
-
-
-
-
-
-
-
-
-
-
