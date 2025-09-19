@@ -1,5 +1,4 @@
-import json
-import os
+import base64, json, os
 import firebase_admin
 from firebase_admin import credentials, firestore, storage
 import uuid
@@ -99,6 +98,7 @@ def eliminar_producto(id):
         print(f"🗑️ Producto eliminado: {id}")
     except Exception as e:
         print("❌ Error al eliminar producto:", e)
+
 
 
 
